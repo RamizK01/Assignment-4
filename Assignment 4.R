@@ -7,6 +7,7 @@ library(dplyr)
 library(lubridate)
 library(knitr)
 
+
 # Reading data into a dataframe and viewing it
 
 df <- read.csv("ufo_subset.csv")
@@ -56,6 +57,8 @@ report_delay_per_country <- df %>%
   group_by(country) %>%
   summarise(average_report_delay = mean(report_delay_days))
 
+View(report_delay_per_country)
+
 ### Issues with durations.seconds column ###
 # duration.hours.min is a character class while duration.seconds is a numeric class
 # class conversion can be annoying when dealing with operations on values
@@ -80,7 +83,22 @@ exclusion_words <- c("several", "split", "multiple", "no more than", "or more", 
 df <- df %>%
   mutate(duration.seconds = ifelse(grepl(paste(exclusion_words, collapse = "|"), tolower(duration.hours.min)), NA, duration.seconds))
 
-      
-View(report_delay_per_country)
+# Creating histogram for duration seconds
+
+breakpoints <- c(seq(0,172800, by = 2880))
+
+# Histogram for all possible duration.seconds values
+hist(df$duration.seconds, breaks = breakpoints, xlab = "Duration of UFO (in seconds)", ylab = "Frequency of Occurence Worldwide") 
+
+# Histogram adjusted for all duration.seconds values under 4 hours (14400 seconds), note this does exclude some values
+adj_breakpoints <- c(seq(0,172800, by = 240))
+
+hist(df$duration.seconds, breaks = adj_breakpoints, xlim = c(0,14400), xlab = "Duration of UFO (in seconds)", ylab = "Frequency of Occurence Worldwide")
+
+# On a personal note, I do not like creating a visual representation of the durations.seconds column due to the huge difference in short term sightings and longer term sightings
+# possible fix, split data set based on value of duration.seconds (one data set for >60 seconds, one for 60 seconds - 1 hour, and lastly >1 hour)
+# histograms in each of these separated datasets will provide much more insight to specific findings, and frequencies can be directly compared if wanted
+
+
 View(df)  
 
