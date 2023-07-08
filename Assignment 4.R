@@ -52,8 +52,10 @@ df$report_delay <- as.numeric(df$date_posted - df$datetime) / (60*60*24)
 df <- df[df$report_delay > 0, ]
 
 df$report_delay <- paste0(floor(df$report_delay), " days")  
-
-
-          
+    
+report_delay_per_country <- df %>%
+  group_by(country) %>%
+      
+View(average_report_delay_per_country)
 View(df)  
 
