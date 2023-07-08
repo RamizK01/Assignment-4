@@ -44,9 +44,16 @@ kable(hoax_sightings_per_country,
       caption = "Values are in percentile, %, format\n
       --LEGEND--\n au = Australia\n ca = Canada\n de = Denmark\n gb = Great Britain\n us = United States of America")
 
-df$report_delay <- df$date_posted - df$datetime %>%
-  as.numeric(df$report_delay) %>% 
-  df$report_delay / (60*24*60) %>%
-  paste(df$report_delay,"days")
+df$report_delay <- as.numeric(df$date_posted - df$datetime) / (60*60*24)  
+
+
+# While numeric, removing any observations with a negative report_delay value, meaning it was reported before it happened
+
+df <- df[df$report_delay > 0, ]
+
+df$report_delay <- paste0(floor(df$report_delay), " days")  
+
+
           
 View(df)  
+
