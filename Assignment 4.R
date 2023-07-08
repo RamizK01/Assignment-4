@@ -5,6 +5,7 @@
 # loading any necessary packages (please install if you do not have already with install.packages)
 library(dplyr)
 library(lubridate)
+library(knitr)
 
 # Reading data into a dataframe and viewing it
 
@@ -24,5 +25,28 @@ df$datetime <- as.POSIXct(df$datetime, format = "%Y-%m-%d %H:%M")
 df$date_posted <- as.POSIXct(df$date_posted, format = "%d-%m-%Y")
 
 # Adding Hoax column
+# ifelse() can be used to check the comments column for the keyword, hoax while assigning it to the new variable
+# Hoax comments were written in three different ways by NUFORC, using grepl() we can check for all three ways 
+# and assign a TRUE boolean if the word Hoax was written in the comments
 
-df$Hoax <- ifelse(grepl("Hoax|HOAX|hoax", df$comments), TRUE, FALSE)
+df$is_hoax <- ifelse(grepl("Hoax|HOAX|hoax", df$comments), TRUE, FALSE)
+
+
+hoax_sightings_per_country <- df %>%
+  group_by(country) %>%
+  summarise(percentage_of_hoax_sightings_per_country = (sum(is_hoax == TRUE)/n())*100) 
+
+# Found this cool package called knitr which has a table() function called kable()
+# not part of tidyverse, more of an html style formatting to create tables and visualizations
+
+kable(hoax_sightings_per_country, 
+      digits = 2,
+      caption = "Values are in percentile, %, format\n
+      --LEGEND--\n au = Australia\n ca = Canada\n de = Denmark\n gb = Great Britain\n us = United States of America")
+
+df$report_delay <- df$date_posted - df$datetime %>%
+  as.numeric(df$report_delay) %>% 
+  df$report_delay / (60*24*60) %>%
+  paste(df$report_delay,"days")
+          
+View(df)  
